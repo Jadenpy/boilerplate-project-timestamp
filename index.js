@@ -56,6 +56,14 @@ app.get("/api/hello", function (req, res) {
 
 app.use(express.json());
 
+function isUnixTimestamp(date) {
+  return !isNaN(new Date(date * 1000).getTime());
+}
+
+function isUTCTimestamp(date) {
+  return !isNaN(new Date(date).getTime());
+}
+
 app.get('/api/:date?', (req, res) => {
   let date = req.params.date;
   let response = {};
@@ -63,12 +71,20 @@ app.get('/api/:date?', (req, res) => {
   if (!date) {
     // 如果date为空，使用当前时间
     date = new Date();
+    response.unix = Math.floor(date.getTime());   //ms
+    response.utc = date.toUTCString();
+    console.log('输入的日期为空');
   } else {
+    // console.log('输入的日期类型为：', typeof date);
     // 尝试解析date
-    if (typeof date === 'string') {
+    if (isUTCTimestamp(date)) {
+      console.log('输入的日期类型为：', 'UTC时间');
       date = new Date(date);
-    } else if (typeof date === 'number') {
-      date = new Date(date * 1000); // 假设date是秒级的unix时间戳
+      response.unix = Math.floor(date.getTime());   
+    } else if (isUnixTimestamp(date)) {
+      console.log('输入的日期类型为：', 'unix时间');
+      date = new Date(parseInt(date)); // unix时间戳必须为int才能正确解析
+      response.utc = date.toUTCString();
     } else {
       return res.status(400).json({
         error: 'Invalid date'
@@ -76,16 +92,16 @@ app.get('/api/:date?', (req, res) => {
     }
   }
 
-  if (isNaN(date.getTime())) {
-    // 如果date无效，返回错误信息
-    return res.status(400).json({
-      error: 'Invalid date'
-    });
-  }
+  // if (isNaN(date.getTime())) {
+  //   // 如果date无效，返回错误信息
+  //   return res.status(400).json({
+  //     error: 'Invalid date'
+  //   });
+  // }
 
   // 如果date有效，返回unix时间戳和UTC时间
-  response.unix = Math.floor(date.getTime());
-  response.utc = date.toUTCString();
+  
+  
 
   res.json(response);
 });
