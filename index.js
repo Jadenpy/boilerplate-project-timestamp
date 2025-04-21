@@ -80,11 +80,15 @@ app.get('/api/:date?', (req, res) => {
     if (isUTCTimestamp(date)) {
       console.log('输入的日期类型为：', 'UTC时间');
       date = new Date(date);
-      response.unix = Math.floor(date.getTime());   
+      response.utc = date.toUTCString();
+      response.unix = Math.floor(date.getTime());  
+      
     } else if (isUnixTimestamp(date)) {
       console.log('输入的日期类型为：', 'unix时间');
+      response.unix = date;
       date = new Date(parseInt(date)); // unix时间戳必须为int才能正确解析
       response.utc = date.toUTCString();
+      
     } else {
       return res.status(400).json({
         error: 'Invalid date'
@@ -102,7 +106,7 @@ app.get('/api/:date?', (req, res) => {
   // 如果date有效，返回unix时间戳和UTC时间
   
   
-
+  console.log('####',response);
   res.json(response);
 });
 
