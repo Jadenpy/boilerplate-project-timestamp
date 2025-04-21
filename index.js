@@ -85,7 +85,7 @@ app.get('/api/:date?', (req, res) => {
       
     } else if (isUnixTimestamp(date)) {
       console.log('输入的日期类型为：', 'unix时间');
-      response.unix = date;
+      response.unix = parseInt(date);
       date = new Date(parseInt(date)); // unix时间戳必须为int才能正确解析
       response.utc = date.toUTCString();
       
